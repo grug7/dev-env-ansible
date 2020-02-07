@@ -1,0 +1,71 @@
+---
+- name: Setup dev enviroment
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: update packages
+      become: true
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: install snap packages
+      snap:
+        name:
+          - slack
+          - spotify
+          - postman
+          - ufw
+      become: yes
+
+    - name: install misc apt packages
+      become: true
+      apt:
+        pkg:
+          - neovim
+          - brave-browser
+          - curl
+          - jq
+          - terminator
+          - zsh
+          - fonts-powerline
+
+    - name: set default shell
+      cmd: chsh -s $(which zsh)
+
+    - name: install oh-my-zsh
+      cmd: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+    - name: add nodejs ppa
+      cmd: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+ 
+    - name: install nodejs
+      become: yes
+      apt:
+        name: nodejs
+        state: latest
+
+
+    - name: get and use terminator config
+      cmd: git clone https://gist.github.com/grug7/8ea32904acc6c5b3be96f8241d265a69 ~/gists/terminator
+      cmd: mv ~/gists/terminator/config ~/.config/terminator/config
+      cmd: rm -rf ~/gists/terminator
+
+    - name: get and use vimrc
+      cmd: git clone https://gist.github.com/grug7/2054e5a008469417bf3602bc4bcf355f ~/gists/vimrc
+      cmd: mv ~/gists/vimrc/.vimrc ~/.vimrc
+      cmd: rm -rf ~/gists/vimrc
+
+    - name: get and use init.vim
+      cmd: git clone https://gist.github.com/grug7/f035460fd0813d770f57e943b83ef3ba ~/gists/init.vimrc
+      cmd: mv ~/gists/init.vimrc/init.vim ~/.config/nvim/init.vim
+      cmd: rm -rf ~/gists/init.vimrc
+
+    - name: get and use zshrc
+      cmd: git clone https://gist.github.com/grug7/c4113d9a7c7c9ffe5aeb65560fc39c73 ~/gists/zshrc
+      cmd: mv ~/gists/zshrc/.zshrc ~/.zshrc
+      cmd: rm -rf ~/gists/zshrc
+
+    - name: delete gists folder
+      cmd: rm -rf ~/gists
